@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Cargo } from '../../cargo/cargo';
+import { CargoService } from '../../services/cargo.service';
 import { FuncionarioService } from '../../services/funcionario.service';
 import { Funcionario } from '../funcionario';
 
@@ -20,24 +22,29 @@ export class FuncionarioFormComponent implements OnInit {
 
   id:string | undefined
   urlImagem: any = ''
+  cargos: Cargo[] = []
 
   constructor(
     private fb: FormBuilder,
-    private funcService: FuncionarioService
+    private funcService: FuncionarioService,
+    private cargoService: CargoService
   ) { }
 
   ngOnInit(): void {
     this.funcService.getfuncionarioEdit().subscribe(resultado => {
       console.log(resultado)
       this.id = resultado.id
+      this.urlImagem = resultado.foto
       this.funcionario.patchValue({
         nome:resultado.nome,
         email:resultado.email,
         cargo:resultado.cargo,
         salario:resultado.salario,
-        foto:resultado.foto
+        
       })
     })
+
+    this.trazerTodosCargos()
   }
 
   salvarFuncionario(){
@@ -56,7 +63,7 @@ export class FuncionarioFormComponent implements OnInit {
       email: this.funcionario.value.email,
       cargo: this.funcionario.value.cargo,
       salario: this.funcionario.value.salario,
-      foto: this.funcionario.value.foto
+      foto: this.urlImagem
     }
     this.funcService.addFuncionario(FUNCIONARIO).then(() =>{
       console.log("Funcionario cadastrado")
@@ -65,13 +72,14 @@ export class FuncionarioFormComponent implements OnInit {
       console.log("Error ao cadastrar o funcionario")
     }) 
   }
+
   editarFuncionario(id:string){
     const FUNCIONARIO: Funcionario = {
       nome: this.funcionario.value.nome,
       email: this.funcionario.value.email,
       cargo: this.funcionario.value.cargo,
       salario: this.funcionario.value.salario,
-      foto: this.funcionario.value.foto
+      foto: this.urlImagem
     }
     this.funcService.editarFuncionario(id, FUNCIONARIO).then(()=>{
       console.log("Funcionario editado!")
@@ -83,10 +91,10 @@ export class FuncionarioFormComponent implements OnInit {
   }
 
   carregarImagem(event:any){
-    let arquivo = event.target.files
+    let arquivo = event.target.files[0]
     let reader = new FileReader()
 
-    reader.readAsDataURL(arquivo[0])
+    reader.readAsDataURL(arquivo)
     reader.onloadend = () => {
       console.log(reader.result)
       this.funcService.subirImagen("funcionario" + Date.now(), reader.result).then(urlImagem => {
@@ -94,5 +102,17 @@ export class FuncionarioFormComponent implements OnInit {
         this.urlImagem = urlImagem
       })
     }
+  }
+
+  trazerTodosCargos(){
+    this.cargoService.listarCargos().subscribe(doc =>{
+      this.cargos = []
+      doc.forEach((element: any) =>{
+        this.cargos.push({
+          id: element.payload.doc.id,
+          ...element.payload.doc.data()
+        })
+      })
+    })
   }
 }

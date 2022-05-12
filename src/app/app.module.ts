@@ -25,6 +25,9 @@ import { AngularFireAnalyticsModule } from '@angular/fire/compat/analytics';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { ReactiveFormsModule } from '@angular/forms';
 import { registerLocaleData } from '@angular/common';
+import {AngularFireAuth} from '@angular/fire/compat/auth';
+import { LoginComponent } from './components/login/login.component';
+import { CargoListaComponent } from './components/cargo/cargo-lista/cargo-lista.component';
 
 registerLocaleData(localePt)
 
@@ -36,7 +39,9 @@ registerLocaleData(localePt)
     FuncionarioFormComponent,
     FuncionarioListaComponent,
     MainNavComponent,
-    FuncionarioCardsComponent
+    FuncionarioCardsComponent,
+    LoginComponent,
+    CargoListaComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +61,7 @@ registerLocaleData(localePt)
     
   
   ],
-  providers: [
+  providers: [ AngularFireAuth,
     {provide: LOCALE_ID, useValue: 'pt-BR'}
   ],
   bootstrap: [AppComponent]

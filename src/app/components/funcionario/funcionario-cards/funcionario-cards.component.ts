@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FuncionarioService } from '../../services/funcionario.service';
+import { Funcionario } from '../funcionario';
 
 @Component({
   selector: 'app-funcionario-cards',
@@ -7,9 +9,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FuncionarioCardsComponent implements OnInit {
 
-  constructor() { }
+  funcionarios: Funcionario[] = []
+
+  constructor(
+    private funcService: FuncionarioService
+  ) { }
 
   ngOnInit(): void {
+    this.mostrarFuncionarios()
   }
 
+  mostrarFuncionarios(){
+
+    this.funcService.listarFuncionarios().subscribe(doc =>{
+     console.log(doc)
+     this.funcionarios = []
+     doc.forEach((element:any) => {
+       this.funcionarios.push({
+         id: element.payload.doc.id,
+         ...element.payload.doc.data()})
+       })
+    })
+    console.log(this.funcionarios)
+  }
 }
